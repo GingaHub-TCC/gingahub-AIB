@@ -1,0 +1,2 @@
+Para resetar o banco e semear com o seeder padrão 'GingaHubSeeder':
+php artisan migrate:fresh --seed
