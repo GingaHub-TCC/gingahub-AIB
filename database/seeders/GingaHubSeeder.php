@@ -24,7 +24,7 @@ class GingaHubSeeder extends Seeder
             'email' => 'academia@teste.com',
             'senha' => Hash::make('123456'),
             'contato' => '2799999999',
-            'endereco_id' => $endAcademia->id
+            'endereco_id' => $endAcademia->id,
         ]);
 
         $academia = PessoaJuridica::create([

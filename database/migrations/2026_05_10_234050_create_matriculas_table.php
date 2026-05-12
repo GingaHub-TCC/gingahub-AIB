@@ -10,19 +10,14 @@ return new class extends Migration
     {
         Schema::create('matriculas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('pessoa_fisica_id')->constrained('pessoa_fisicas');
+            $table->foreignId('pessoa_juridica_id')->constrained('pessoa_juridicas');
             
-            // FK para o Aluno (Pessoa Física)
-            $table->foreignId('pessoa_fisica_id')->constrained('pessoa_fisicas')->onDelete('cascade');
+            // Status: 'ativa', 'inativa'
+            $table->enum('status', ['ativa', 'inativa'])->default('ativa');
             
-            // FK para a Academia (Pessoa Jurídica)
-            $table->foreignId('pessoa_juridica_id')->constrained('pessoa_juridicas')->onDelete('cascade');
-            
-            // Status da matrícula (Ativa, Trancada, Cancelada)
-            $table->string('status', 20)->default('ativa');
-
-            // Impede que o aluno se matricule 2x na mesma academia:
-            $table->unique(['pessoa_fisica_id', 'pessoa_juridica_id']);
-
+            $table->timestamp('data_matricula')->useCurrent();
+            $table->timestamp('data_cancelamento')->nullable();
             $table->timestamps();
         });
     }

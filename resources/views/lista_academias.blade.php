@@ -22,12 +22,24 @@
                 <td>{{ $academia->nome_fantasia }}</td>
                 <td>{{ $academia->pessoa->endereco->cidade }}</td>
                 <td>
-                    @if(in_array($academia->id, $minhasMatriculas))
-                        <button disabled style="background-color: #ccc;">Já Matriculado</button>
-                    @else
+                    @php
+                        $matricula = $minhasMatriculas->get($academia->id);
+                    @endphp
+
+                    @if(!$matricula)
                         <form action="{{ route('aluno.matricular', $academia->id) }}" method="POST">
                             @csrf
                             <button type="submit">Matricular-se</button>
+                        </form>
+                    @elseif($matricula->pivot->status === 'ativa')
+                        <form action="{{ route('aluno.desmatricular', $academia->id) }}" method="POST">
+                            @csrf
+                            <button type="submit">Desmatricular-se</button>
+                        </form>
+                    @else
+                        <form action="{{ route('aluno.matricular', $academia->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" style="background-color: orange;">Rematricular-se</button>
                         </form>
                     @endif
                 </td>

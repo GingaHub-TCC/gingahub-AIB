@@ -18,7 +18,7 @@ class Pessoa extends Authenticatable
     ];
 
     protected $hidden = [
-        'senha', 'remember_token'
+        'senha', 'remember_token', 'ativo'
     ];
 
     public function getAuthPassword()

@@ -43,6 +43,9 @@ Route::get('/academias', [AlunoController::class, 'listarAcademias'])->name('aca
 
 // Rota para processar a matrícula
 Route::post('/matricular/{academia_id}', [AlunoController::class, 'matricular'])->name('aluno.matricular');
+
+// Rota para o aluno se desmatricular
+Route::post('/academia/{id}/desmatricular', [AlunoController::class, 'desmatricular'])->name('aluno.desmatricular');
 ///////////////////////
 
 

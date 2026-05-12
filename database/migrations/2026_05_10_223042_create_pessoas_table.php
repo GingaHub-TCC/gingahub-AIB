@@ -19,7 +19,9 @@ return new class extends Migration
 
             // CHAVE ESTRANGEIRA: Liga a pessoa ao endereço (Endereco_idEndereco do seu print)
             // O Laravel cria o campo INT e já trava a relação com a tabela 'enderecos'
-            $table->foreignId('endereco_id')->constrained('enderecos')->onDelete('cascade');
+            $table->foreignId('endereco_id')->constrained('enderecos');
+
+            $table->boolean('ativo')->default(true);
 
             $table->rememberToken(); // "Lembrar-me" do login
 

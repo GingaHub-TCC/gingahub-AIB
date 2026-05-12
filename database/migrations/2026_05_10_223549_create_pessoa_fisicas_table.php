@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('role', 45); 
 
             // CHAVE ESTRANGEIRA
-            $table->foreignId('pessoa_id')->constrained('pessoas')->onDelete('cascade');
+            $table->foreignId('pessoa_id')->constrained('pessoas');
 
             $table->timestamps();
         });

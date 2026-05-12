@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('cnpj', 14)->unique();
 
             // CHAVE ESTRANGEIRA: Liga ao ID da tabela pessoas
-            $table->foreignId('pessoa_id')->constrained('pessoas')->onDelete('cascade');
+            $table->foreignId('pessoa_id')->constrained('pessoas');
 
             $table->timestamps();
         });

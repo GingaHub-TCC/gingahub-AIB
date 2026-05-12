@@ -23,6 +23,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+            if ($user->ativo == false) { return "Conta desativada"; }
 
             // Lógica de Redirecionamento Inteligente
             if ($user->pessoaFisica) {

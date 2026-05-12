@@ -23,8 +23,10 @@ class PessoaFisica extends Model
         return $this->belongsTo(Pessoa::class);
     }
 
-    public function academias()
-    {
-        return $this->belongsToMany(PessoaJuridica::class, 'matriculas', 'pessoa_fisica_id', 'pessoa_juridica_id');
-    }
+    public function academias() {
+    return $this->belongsToMany(PessoaJuridica::class, 'matriculas', 'pessoa_fisica_id', 'pessoa_juridica_id')
+                ->withPivot('status', 'data_cancelamento') // Permite acessar esses campos
+                ->withTimestamps();
+}
+
 }
