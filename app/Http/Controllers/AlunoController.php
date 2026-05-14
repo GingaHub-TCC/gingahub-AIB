@@ -60,12 +60,16 @@ class AlunoController extends Controller
             ]);
 
             // Criar a Pessoa Física vinculada à Pessoa
-            PessoaFisica::create([
+            $aluno = new PessoaFisica([
                 'sobrenome' => $request->sobrenome,
-                'cpf' => $cpfLimpo,
-                'role' => 'aluno', // Role padrão
+                'cpf'       => $cpfLimpo,
                 'pessoa_id' => $pessoa->id
             ]);
+
+            // Como 'role' NÃO é fillable, você define manualmente aqui:
+            $aluno->role = 'aluno'; 
+
+            $aluno->save();
 
             DB::commit();
             return redirect()->back()->with('success', 'Aluno cadastrado com sucesso!');

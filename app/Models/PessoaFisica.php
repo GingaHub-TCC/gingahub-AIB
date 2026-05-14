@@ -11,7 +11,6 @@ class PessoaFisica extends Model
         'cpf',
         'sexo',
         'data_nascimento',
-        'role', // <-- Adicionado aqui para permitir o cadastro
         'pessoa_id',
     ];
 
