@@ -27,7 +27,7 @@ O projeto está sendo desenvolvido e testado no seguinte ambiente:
 - **Client DB:** libmysql - mysqlnd 8.2.12
 - **Framework:** Laravel 12.58.0
 
-## Como rodar o projeto
+## Como clonar o projeto localmente
 1. Clone o repositório.
 2. Execute `composer install`.
 3. Configure o `.env` com suas credenciais do MySQL.
@@ -35,3 +35,9 @@ O projeto está sendo desenvolvido e testado no seguinte ambiente:
 5. Execute as migrations e o seeder:
    ```bash
    php artisan migrate:fresh --seed
+
+## Com rodar o projeto em servidor local
+1. Execute o server na porta 8000:
+   ```bash
+   php artisan serve --port=8000
+2. Abra no navegador o endereço 127.0.0.1:8000/(aqui adicione a rota para a view que deseja).
