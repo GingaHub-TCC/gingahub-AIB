@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 
 
+//INDEX DA PAGINA
+Route::get('/', function () {
+    return view('index');
+});
+
+
 // ALUNO CADASTRO
 // Rota para mostrar o formulário (GET)
 Route::get('/cadastro-aluno', [AlunoController::class, 'create'])->name('aluno.create');
