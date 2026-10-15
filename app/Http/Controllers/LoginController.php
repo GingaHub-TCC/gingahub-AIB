@@ -36,7 +36,7 @@ class LoginController extends Controller
                 return redirect()->route('academia.dashboard'); // Ainda não feito, coisa para a ETAPA 2
             }
 
-            return redirect('/'); // Caso seja um admin ou algo genérico
+            return redirect('/'); // Caso seja um admin ou algo generico
         }
 
         return back()->withErrors(['email' => 'Credenciais inválidas.']);

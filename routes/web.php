@@ -44,22 +44,43 @@ Route::post('/esqueci-senha', [LoginController::class, 'enviarToken']);
 
 
 // MATRICULA
-// Rota para o aluno ver as academias
-Route::get('/academias', [AlunoController::class, 'listarAcademias'])->name('academias.listar');
+// Rota protegida: Só entra quem estiver logado E for Pessoa Física (Aluno)
+Route::middleware(['auth'])->group(function () {
+    
+    Route::group(['middleware' => function ($request, $next) {
+        // Se o usuário logado NÃO for uma Pessoa Física, barra o acesso
+        if (!auth()->user()->pessoaFisica) {
+            return redirect('/')->with('error', 'Acesso restrito para alunos.');
+        }
+        return $next($request);
+    }], function () {
 
-// Rota para processar a matrícula
-Route::post('/matricular/{academia_id}', [AlunoController::class, 'matricular'])->name('aluno.matricular');
+        // Rota para o aluno ver as academias
+        Route::get('/academias', [AlunoController::class, 'listarAcademias'])->name('academias.listar');
 
-// Rota para o aluno se desmatricular
-Route::post('/academia/{id}/desmatricular', [AlunoController::class, 'desmatricular'])->name('aluno.desmatricular');
-///////////////////////
+        // Rota para processar a matrícula
+        Route::post('/matricular/{academia_id}', [AlunoController::class, 'matricular'])->name('aluno.matricular');
+
+        // Rota para o aluno se desmatricular
+        Route::post('/academia/{id}/desmatricular', [AlunoController::class, 'desmatricular'])->name('aluno.desmatricular');
+
+    });
+});
+
 
 
 // DASHBOARD ACADEMIA
-// Rota protegida: Só entra quem estiver logado
+// Rota protegida: Só entra quem estiver logado E NÃO for Pessoa Física (ou seja, for Academia)
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-academia', function () {
+        
+        // Se o usuário logado for uma Pessoa Física, barra o acesso
+        if (Auth::user()->pessoaFisica) {
+            return redirect('/')->with('error', 'Acesso restrito para academias.');
+        }
+
         return view('dashboard_academia');
     })->name('academia.dashboard');
 });
+
 ///////////////////////
