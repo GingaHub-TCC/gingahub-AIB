@@ -52,7 +52,7 @@ O projeto está sendo desenvolvido e testado no seguinte ambiente:
 
 - **Servidor Web:** Apache 2.4.58 (Windows 64-bit)
 - **Linguagem:** PHP 8.2.12
-    - **Extensões Ativas:** `mysqli`, `curl`, `mbstring`, `openssl`
+    - **Extensões Ativas:** `pdo_mysql`, `mysqli`, `curl`, `mbstring`, `openssl`
 - **Banco de Dados:** MariaDB 10.4.32
     - **Protocolo:** v10 via TCP/IP
     - **Charset:** `utf8mb4_unicode_ci` (Suporte total a emojis e caracteres especiais)
@@ -62,14 +62,28 @@ O projeto está sendo desenvolvido e testado no seguinte ambiente:
 ## Como clonar o projeto localmente
 1. Clone o repositório.
 2. Execute `composer install`.
-3. Configure o `.env` com suas credenciais do MySQL.
-4. Gere a chave da aplicação: `php artisan key:generate`.
-5. Execute as migrations e o seeder:
+3. Crie o arquivo `.env` a partir do exemplo: `copy .env.example .env` (no Linux/macOS: `cp .env.example .env`).
+4. No `.env`, troque o banco de SQLite para MySQL:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=gingahub_db
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+   Ajuste `DB_USERNAME` e `DB_PASSWORD` para as suas credenciais do MySQL.
+5. Crie o banco `gingahub_db` no MySQL (phpMyAdmin ou terminal), com charset `utf8mb4` e collation `utf8mb4_unicode_ci`.
+6. Gere a chave da aplicação, se o `APP_KEY` do `.env` estiver vazio: `php artisan key:generate`.
+7. Execute as migrations e o seeder:
    ```bash
    php artisan migrate:fresh --seed
+   ```
+   **Atenção:** `migrate:fresh` apaga todas as tabelas e os dados existentes no banco antes de recriá-las.
 
-## Com rodar o projeto em servidor local
-1. Execute o server na porta 8000:
+## Como rodar o projeto em servidor local
+1. Inicie o servidor na porta 8000:
    ```bash
    php artisan serve --port=8000
-2. Abra no navegador o endereço 127.0.0.1:8000/(aqui adicione a rota para a view que deseja).
+   ```
+2. Abra no navegador `http://localhost:8000/login` (tela de entrada). Use as contas da seção de contas de teste acima.
