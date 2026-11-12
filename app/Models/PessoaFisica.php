@@ -23,9 +23,35 @@ class PessoaFisica extends Model
     }
 
     public function academias() {
-    return $this->belongsToMany(PessoaJuridica::class, 'matriculas', 'pessoa_fisica_id', 'pessoa_juridica_id')
-                ->withPivot('status', 'data_cancelamento') // Permite acessar esses campos
-                ->withTimestamps();
-}
+        return $this->belongsToMany(PessoaJuridica::class, 'matriculas', 'pessoa_fisica_id', 'pessoa_juridica_id')
+                    ->withPivot('id', 'status', 'data_matricula', 'data_cancelamento') // Permite acessar esses campos
+                    ->withTimestamps();
+    }
 
+    /**
+     * Relação: Todas as matrículas do aluno (ativas e inativas)
+     */
+    public function matriculas()
+    {
+        return $this->hasMany(Matricula::class, 'pessoa_fisica_id');
+    }
+
+    /**
+     * Busca a matrícula ATIVA do aluno em uma academia (ou null)
+     */
+    public function matriculaAtivaEm($academiaId)
+    {
+        return $this->matriculas()
+                    ->where('pessoa_juridica_id', $academiaId)
+                    ->where('status', 'ativa')
+                    ->first();
+    }
+
+    /**
+     * Relação: Assinaturas do aluno em todas as academias (via matrícula)
+     */
+    public function assinaturas()
+    {
+        return $this->hasManyThrough(Assinatura::class, Matricula::class, 'pessoa_fisica_id', 'matricula_id');
+    }
 }

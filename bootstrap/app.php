@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\CheckInactivity;
+use App\Http\Middleware\EnsureIsAcademia;
+use App\Http\Middleware\EnsureIsAluno;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // Em vez de append, use o grupo web
         $middleware->web(append: [
             CheckInactivity::class,
+        ]);
+
+        // Apelidos para restringir rotas por tipo de usuário
+        $middleware->alias([
+            'aluno' => EnsureIsAluno::class,
+            'academia' => EnsureIsAcademia::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

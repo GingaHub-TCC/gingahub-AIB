@@ -12,6 +12,52 @@ use Illuminate\Support\Facades\DB;
 
 class AcademiaController extends Controller
 {
+    // Painel da academia: números gerais e grade semanal de treinos
+    public function dashboard() {
+        $academia = $this->academiaLogada();
+
+        $stats = [
+            'alunos' => $academia->matriculas()->where('status', 'ativa')->count(),
+            'assinaturas' => $academia->assinaturas()->where('assinaturas.status', 'ativa')->count(),
+            'planos' => $academia->planos()->where('ativo', true)->count(),
+            'treinos' => $academia->treinos()->count(),
+            'receita' => $academia->assinaturas()->where('assinaturas.status', 'ativa')->sum('assinaturas.valor'),
+        ];
+
+        $treinos = $academia->treinos()->with('instrutor', 'local')->withCount('planos')
+            ->orderBy('dia_semana')->orderBy('hora_inicio')->get()
+            ->groupBy('dia_semana');
+
+        $ultimasAssinaturas = $academia->assinaturas()
+            ->with('plano', 'matricula.aluno.pessoa')
+            ->latest('assinaturas.created_at')
+            ->take(5)
+            ->get();
+
+        // Passo a passo para a academia nova saber por onde começar
+        $pendencias = [
+            'locais' => $academia->locais()->doesntExist(),
+            'instrutores' => $academia->instrutores()->doesntExist(),
+            'treinos' => $stats['treinos'] == 0,
+            'planos' => $academia->planos()->doesntExist(),
+        ];
+
+        return view('academia.dashboard', compact('academia', 'stats', 'treinos', 'ultimasAssinaturas', 'pendencias'));
+    }
+
+    // Lista os alunos matriculados (ativos e inativos) com suas assinaturas
+    public function alunos() {
+        $academia = $this->academiaLogada();
+
+        $matriculas = $academia->matriculas()
+            ->with(['aluno.pessoa', 'assinaturas' => fn ($q) => $q->with('plano')->latest()])
+            ->orderByRaw("status = 'ativa' DESC")
+            ->latest()
+            ->get();
+
+        return view('academia.alunos', compact('academia', 'matriculas'));
+    }
+
     // Mostra o formulário
     public function create() {
         return view('cadastro_academia');

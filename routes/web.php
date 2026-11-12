@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\AlunoController;
 use App\Http\Controllers\AcademiaController;
+use App\Http\Controllers\CarrinhoController;
+use App\Http\Controllers\InstrutorController;
+use App\Http\Controllers\LocalController;
+use App\Http\Controllers\PlanoController;
+use App\Http\Controllers\TreinoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 
@@ -32,7 +37,8 @@ Route::post('/cadastro-academia', [AcademiaController::class, 'store'])->name('a
 
 // LOGIN and LOGOUT
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+// throttle: no máximo 5 tentativas por minuto (contra força bruta)
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 ///////////////////////
 
@@ -43,44 +49,52 @@ Route::post('/esqueci-senha', [LoginController::class, 'enviarToken']);
 ///////////////////////
 
 
-// MATRICULA
+// ÁREA DO ALUNO
 // Rota protegida: Só entra quem estiver logado E for Pessoa Física (Aluno)
-Route::middleware(['auth'])->group(function () {
-    
-    Route::group(['middleware' => function ($request, $next) {
-        // Se o usuário logado NÃO for uma Pessoa Física, barra o acesso
-        if (!auth()->user()->pessoaFisica) {
-            return redirect('/')->with('error', 'Acesso restrito para alunos.');
-        }
-        return $next($request);
-    }], function () {
+// O middleware 'aluno' fica em app/Http/Middleware/EnsureIsAluno.php
+Route::middleware(['auth', 'aluno'])->group(function () {
 
-        // Rota para o aluno ver as academias
-        Route::get('/academias', [AlunoController::class, 'listarAcademias'])->name('academias.listar');
+    // Painel do aluno: matrículas, assinaturas e grade de treinos
+    Route::get('/dashboard-aluno', [AlunoController::class, 'dashboard'])->name('aluno.dashboard');
 
-        // Rota para processar a matrícula
-        Route::post('/matricular/{academia_id}', [AlunoController::class, 'matricular'])->name('aluno.matricular');
+    // Rota para o aluno ver as academias
+    Route::get('/academias', [AlunoController::class, 'listarAcademias'])->name('academias.listar');
 
-        // Rota para o aluno se desmatricular
-        Route::post('/academia/{id}/desmatricular', [AlunoController::class, 'desmatricular'])->name('aluno.desmatricular');
+    // Rota para processar a matrícula
+    Route::post('/matricular/{academia_id}', [AlunoController::class, 'matricular'])->whereNumber('academia_id')->name('aluno.matricular');
 
-    });
+    // Rota para o aluno se desmatricular (inativa a matrícula e as assinaturas)
+    Route::post('/academia/{id}/desmatricular', [AlunoController::class, 'desmatricular'])->whereNumber('id')->name('aluno.desmatricular');
+
+    // LOJA DA ACADEMIA (só para quem tem matrícula ativa nela)
+    Route::get('/academia/{academia_id}', [CarrinhoController::class, 'show'])->whereNumber('academia_id')->name('aluno.academia');
+    Route::post('/academia/{academia_id}/carrinho/{plano_id}', [CarrinhoController::class, 'adicionar'])->whereNumber(['academia_id', 'plano_id'])->name('carrinho.adicionar');
+    Route::delete('/academia/{academia_id}/carrinho/{plano_id}', [CarrinhoController::class, 'remover'])->whereNumber(['academia_id', 'plano_id'])->name('carrinho.remover');
+    Route::post('/academia/{academia_id}/finalizar', [CarrinhoController::class, 'finalizar'])->whereNumber('academia_id')->name('carrinho.finalizar');
+
+    // Cancelar uma assinatura específica (mantém a matrícula)
+    Route::post('/assinatura/{id}/cancelar', [AlunoController::class, 'cancelarAssinatura'])->whereNumber('id')->name('aluno.assinatura.cancelar');
 });
+///////////////////////
 
 
+// ÁREA DA ACADEMIA
+// Rota protegida: Só entra quem estiver logado E for Pessoa Jurídica (Academia)
+// O middleware 'academia' fica em app/Http/Middleware/EnsureIsAcademia.php
+Route::middleware(['auth', 'academia'])->group(function () {
 
-// DASHBOARD ACADEMIA
-// Rota protegida: Só entra quem estiver logado E NÃO for Pessoa Física (ou seja, for Academia)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard-academia', function () {
-        
-        // Se o usuário logado for uma Pessoa Física, barra o acesso
-        if (Auth::user()->pessoaFisica) {
-            return redirect('/')->with('error', 'Acesso restrito para academias.');
-        }
+    Route::get('/dashboard-academia', [AcademiaController::class, 'dashboard'])->name('academia.dashboard');
+    Route::get('/dashboard-academia/alunos', [AcademiaController::class, 'alunos'])->name('academia.alunos');
 
-        return view('dashboard_academia');
-    })->name('academia.dashboard');
+    Route::prefix('dashboard-academia')->name('academia.')->group(function () {
+        // Cadastros da academia (listar, criar, editar, excluir)
+        Route::resource('planos', PlanoController::class)->except('show')->parameters(['planos' => 'id']);
+        Route::resource('treinos', TreinoController::class)->except('show')->parameters(['treinos' => 'id']);
+        Route::resource('instrutores', InstrutorController::class)->except('show')->parameters(['instrutores' => 'id']);
+        Route::resource('locais', LocalController::class)->except('show')->parameters(['locais' => 'id']);
+
+        Route::patch('planos/{id}/status', [PlanoController::class, 'alternarStatus'])->name('planos.status');
+    });
 });
 
 ///////////////////////

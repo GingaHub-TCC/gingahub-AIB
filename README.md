@@ -15,6 +15,38 @@ A fundação do sistema (Autenticação, Identidade e Segurança) está operacio
 - **Gestão de Vínculos:** Sistema de matrícula com **Reativação Inteligente** (evita duplicidade ao reconhecer ex-alunos).
 - **Integridade Atômica:** Uso de **Database Transactions** em cadastros multi-tabelas.
 
+## Etapa 2: Planos, Treinos e Assinaturas
+
+### Painel da Academia (`/dashboard-academia`)
+- **Locais** (reaproveitam a tabela `enderecos`), **Instrutores** e **Treinos** (tema, dia da semana, horário, instrutor e local).
+- **Planos** com valor e periodicidade, escolhendo **quais treinos cada plano permite praticar** (tabela `plano_treino`).
+- Plano já assinado não pode ser excluído, só **desativado** (some da vitrine e mantém o histórico).
+- Lista de **alunos** (ativos e inativos) com os planos assinados, mais a grade semanal e as últimas assinaturas.
+
+### Painel do Aluno (`/dashboard-aluno`)
+- Matrícula em **várias academias**; com matrícula ativa, o aluno **abre a academia** (`/academia/{id}`) e vê planos e treinos.
+- **Carrinho por academia** (guardado na sessão) → **Concluir pedido** cria um `pedido` (pagamento simulado, já `pago`) e uma `assinatura` por plano.
+- **Desmatricular** inativa a matrícula (o registro continua) e **todas as assinaturas** dela, numa única transação.
+- Cancelamento de uma assinatura avulsa e a grade "Minha semana" com os treinos liberados.
+
+### Segurança
+- Middlewares `aluno` e `academia` (`app/Http/Middleware/EnsureIs*.php`) restringem as rotas por tipo de usuário.
+- Toda consulta parte da academia ou do aluno logado: um usuário não acessa nem altera dados de outro (retorna 404).
+- Logout por inatividade (5 min), com aviso na tela no último minuto; login limitado a 5 tentativas por minuto.
+
+### Contas de teste (senha `123456`)
+| E-mail | Perfil |
+|---|---|
+| academia@teste.com | Academia Ginga Fit (com planos, treinos e instrutores) |
+| dojo@teste.com | Academia Dojo Sol Nascente |
+| aluno@teste.com | Aluno matriculado na Ginga Fit, assinando o plano "Regional 2x" |
+| aluno2@teste.com | Aluno sem matrícula (para testar o fluxo do zero) |
+
+### Testes automatizados
+```bash
+php artisan test
+```
+
 ## Ambiente de Desenvolvimento
 O projeto está sendo desenvolvido e testado no seguinte ambiente:
 

@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\DB;
 class LoginController extends Controller
 {
     public function showLogin() {
+        // Quem já está logado vai direto para o seu painel
+        if (Auth::check()) {
+            if (Auth::user()->pessoaFisica) return redirect()->route('aluno.dashboard');
+            if (Auth::user()->pessoaJuridica) return redirect()->route('academia.dashboard');
+        }
+
         return view('login');
     }
 
@@ -23,23 +29,32 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-            if ($user->ativo == false) { return "Conta desativada"; }
+            if ($user->ativo == false) {
+                // Não pode continuar logado com a conta desativada
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors(['email' => 'Conta desativada.']);
+            }
+
+            // Começa a contar a inatividade a partir do login
+            session(['last_activity' => time()]);
 
             // Lógica de Redirecionamento Inteligente
             if ($user->pessoaFisica) {
-                // Se tem ficha física, manda para a vitrine de academias
-                return redirect()->route('academias.listar');
-            } 
-            
+                // Se tem ficha física, manda para o painel do aluno
+                return redirect()->route('aluno.dashboard');
+            }
+
             if ($user->pessoaJuridica) {
-                // Se tem ficha jurídica, manda para o painel da academia 
-                return redirect()->route('academia.dashboard'); // Ainda não feito, coisa para a ETAPA 2
+                // Se tem ficha jurídica, manda para o painel da academia
+                return redirect()->route('academia.dashboard');
             }
 
             return redirect('/'); // Caso seja um admin ou algo generico
         }
 
-        return back()->withErrors(['email' => 'Credenciais inválidas.']);
+        return back()->withErrors(['email' => 'Credenciais inválidas.'])->onlyInput('email');
     }
 
     public function logout(Request $request) {

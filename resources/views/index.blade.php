@@ -56,11 +56,22 @@
                 <span class="font-serif text-2xl font-bold text-accent-foreground tracking-tighter">GingaHub</span>
             </div>
             
-            <nav class="hidden md:flex items-center gap-6">
-                <a href="{{ route('login') }}" class="font-medium text-accent-foreground hover:text-primary transition-colors">Entrar</a>
-                <a href="{{ route('aluno.create') }}" class="bg-primary text-primary-foreground px-5 py-2.5 rounded-md font-medium shadow-sm hover:brightness-105 transition-all">Cadastre-se</a>
+            <nav class="flex items-center gap-6">
+                @auth
+                    <!-- Já logado: atalho para o painel certo -->
+                    <a href="{{ Auth::user()->pessoaJuridica ? route('academia.dashboard') : route('aluno.dashboard') }}" class="bg-primary text-primary-foreground px-5 py-2.5 rounded-md font-medium shadow-sm hover:brightness-105 transition-all">Meu painel</a>
+                @else
+                    <a href="{{ route('login') }}" class="font-medium text-accent-foreground hover:text-primary transition-colors">Entrar</a>
+                    <a href="{{ route('aluno.create') }}" class="hidden md:inline-block bg-primary text-primary-foreground px-5 py-2.5 rounded-md font-medium shadow-sm hover:brightness-105 transition-all">Cadastre-se</a>
+                @endauth
             </nav>
         </header>
+
+        @if(session('error'))
+            <div class="relative z-10 mx-6 md:mx-12 lg:mx-24 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-md">
+                <p class="text-sm text-yellow-800 font-medium">{{ session('error') }}</p>
+            </div>
+        @endif
 
         <div class="relative z-10 flex-1 flex items-center px-6 md:px-12 lg:px-24">
             <div class="max-w-2xl">

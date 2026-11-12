@@ -12,7 +12,7 @@ class CheckInactivity
     {
         if (Auth::check()) {
             $lastActivity = session('last_activity');
-            $timeout = 5 * 60; // Vamos testar com apenas 30 segundos
+            $timeout = 5 * 60; // 5 minutos de inatividade
             $currentTime = time();
 
             // Se quiser ver os números na tela e parar o código, descomente a linha abaixo:
@@ -20,8 +20,12 @@ class CheckInactivity
 
             if ($lastActivity && ($currentTime - $lastActivity > $timeout)) {
                 Auth::logout();
-                session()->forget('last_activity');
-                return redirect()->route('login')->with('error', 'Sessão expirada.');
+
+                // Destrói a sessão inteira (inclusive o carrinho) e gera um novo token CSRF
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')->with('error', 'Sessão expirada por inatividade. Entre novamente.');
             }
 
             // Atualiza o tempo a cada clique

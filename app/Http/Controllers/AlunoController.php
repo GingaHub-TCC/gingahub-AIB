@@ -82,9 +82,36 @@ class AlunoController extends Controller
         }
     }
 
+    // Painel do aluno: suas matrículas e assinaturas em todas as academias
+    public function dashboard() {
+        $aluno = Auth::user()->pessoaFisica;
+
+        $matriculas = $aluno->matriculas()
+            ->with(['academia.pessoa.endereco', 'assinaturas' => fn ($q) => $q->with('plano.treinos.instrutor', 'plano.treinos.local')->latest()])
+            ->orderByRaw("status = 'ativa' DESC")
+            ->latest()
+            ->get();
+
+        $ativas = $matriculas->where('status', 'ativa');
+        $assinaturasAtivas = $ativas->flatMap->assinaturas->where('status', 'ativa');
+
+        // Grade semanal com os treinos liberados pelos planos ativos (sem repetir)
+        $treinosLiberados = collect();
+        foreach ($ativas as $matricula) {
+            foreach ($matricula->assinaturas->where('status', 'ativa') as $assinatura) {
+                foreach ($assinatura->plano->treinos as $treino) {
+                    $treinosLiberados->put($treino->id, ['treino' => $treino, 'academia' => $matricula->academia->nome_fantasia]);
+                }
+            }
+        }
+        $treinosLiberados = $treinosLiberados->sortBy(fn ($item) => $item['treino']->dia_semana . $item['treino']->hora_inicio);
+
+        return view('aluno.dashboard', compact('aluno', 'matriculas', 'ativas', 'assinaturasAtivas', 'treinosLiberados'));
+    }
+
     // Lista todas as academias
     public function listarAcademias() {
-        $academias = PessoaJuridica::all();
+        $academias = PessoaJuridica::with('pessoa.endereco')->get();
 
         $pessoaFisica = Auth::user()->pessoaFisica;
 
@@ -103,6 +130,9 @@ class AlunoController extends Controller
             return redirect()->back()->with('error', 'Aluno não encontrado.');
         }
 
+        // Garante que a academia existe (evita matrícula em ID inventado)
+        $academia = PessoaJuridica::findOrFail($academia_id);
+
         // 1. Verifica se já existe qualquer registro (Ativo ou Inativo)
         $registroExistente = $aluno->academias()->where('pessoa_juridica_id', $academia_id)->first();
 
@@ -118,24 +148,61 @@ class AlunoController extends Controller
                 'data_cancelamento' => null
             ]);
 
-            return redirect()->back()->with('success', 'Bem-vindo de volta! Sua matrícula foi reativada.');
+            // As assinaturas antigas continuam inativas: o aluno escolhe os planos de novo
+            return redirect()->back()->with('success', 'Bem-vindo de volta! Sua matrícula na ' . $academia->nome_fantasia . ' foi reativada.');
         }
 
         // 3. NOVA MATRÍCULA: Se nunca existiu, cria com status padrão
         $aluno->academias()->attach($academia_id, ['status' => 'ativa']);
 
-        return redirect()->back()->with('success', 'Matrícula realizada com sucesso na academia ') . $academia_id;
+        return redirect()->back()->with('success', 'Matrícula realizada com sucesso na ' . $academia->nome_fantasia . '!');
     }
 
     public function desmatricular($id) {
         $aluno = Auth::user()->pessoaFisica;
 
-        // Estado: Não apagar apenas mudar a 'flag' de ativado para inativado
-        $aluno->academias()->updateExistingPivot($id, [
-            'status' => 'inativa',
-            'data_cancelamento' => now()
-        ]);
+        $matricula = $aluno->matriculaAtivaEm($id);
 
-        return redirect()->back()->with('success', 'Vínculo encerrado com sucesso.');
+        if (!$matricula) {
+            return redirect()->back()->with('warning', 'Você não possui matrícula ativa nesta academia.');
+        }
+
+        // A matrícula e as assinaturas mudam juntas: ou tudo, ou nada
+        DB::transaction(function () use ($matricula) {
+            // Estado: Não apagar apenas mudar a 'flag' de ativado para inativado
+            $matricula->update([
+                'status' => 'inativa',
+                'data_cancelamento' => now()
+            ]);
+
+            // Toda assinatura ativa daquela matrícula também é inativada
+            $matricula->assinaturasAtivas()->update([
+                'status' => 'inativa',
+                'data_cancelamento' => now()
+            ]);
+        });
+
+        // Esvazia o carrinho daquela academia, se houver
+        session()->forget('carrinho.' . $id);
+
+        return redirect()->back()->with('success', 'Vínculo encerrado com sucesso. Suas assinaturas nesta academia foram inativadas.');
+    }
+
+    // Cancela apenas UMA assinatura, mantendo a matrícula
+    public function cancelarAssinatura($id) {
+        $aluno = Auth::user()->pessoaFisica;
+
+        // Só encontra se a assinatura for do próprio aluno logado
+        $assinatura = $aluno->assinaturas()->where('assinaturas.id', $id)->firstOrFail();
+
+        if ($assinatura->status !== 'ativa') {
+            return redirect()->back()->with('warning', 'Esta assinatura já está inativa.');
+        }
+
+        $assinatura->status = 'inativa';
+        $assinatura->data_cancelamento = now();
+        $assinatura->save();
+
+        return redirect()->back()->with('success', 'Assinatura do plano "' . $assinatura->plano->nome . '" cancelada.');
     }
 }

@@ -56,6 +56,11 @@
             <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-md">
                 <p class="text-sm text-red-700 font-medium">{{ $errors->first() }}</p>
             </div>
+        @elseif(session('error'))
+            <!-- Ex: sessão expirada por inatividade -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded-md">
+                <p class="text-sm text-yellow-800 font-medium">{{ session('error') }}</p>
+            </div>
         @endif
 
         <form action="{{ route('login') }}" method="POST" class="space-y-5">
