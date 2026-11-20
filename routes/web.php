@@ -37,8 +37,9 @@ Route::post('/cadastro-academia', [AcademiaController::class, 'store'])->name('a
 
 // LOGIN and LOGOUT
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
-// throttle: no máximo 5 tentativas por minuto (contra força bruta)
-Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
+// Sem limite de tentativas nesta versão (decisão do grupo para a apresentação).
+// Antes: ->middleware('throttle:5,1'), 5 tentativas por minuto por IP.
+Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 ///////////////////////
 

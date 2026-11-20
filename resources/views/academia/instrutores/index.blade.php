@@ -15,7 +15,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-muted text-muted-foreground font-semibold text-sm uppercase tracking-wider border-b border-border">
+                    <tr class="bg-muted text-foreground font-semibold text-sm border-b border-border">
                         <th class="px-6 py-4">Nome</th>
                         <th class="px-6 py-4">Graduação</th>
                         <th class="px-6 py-4">Contato</th>

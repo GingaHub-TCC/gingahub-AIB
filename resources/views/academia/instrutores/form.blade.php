@@ -12,12 +12,12 @@
 
         <div>
             <label for="nome" class="rotulo">Nome *</label>
-            <input type="text" id="nome" name="nome" value="{{ old('nome', $instrutor->nome ?? '') }}" placeholder="Ex: Mestre Pastinha" required maxlength="100" class="campo">
+            <input type="text" id="nome" name="nome" value="{{ old('nome', $instrutor->nome ?? '') }}" placeholder="Ex: Carlos Souza" required maxlength="100" class="campo">
         </div>
         <div class="grid md:grid-cols-2 gap-5">
             <div>
                 <label for="graduacao" class="rotulo">Graduação</label>
-                <input type="text" id="graduacao" name="graduacao" value="{{ old('graduacao', $instrutor->graduacao ?? '') }}" placeholder="Ex: Contramestre, Faixa Preta" maxlength="45" class="campo">
+                <input type="text" id="graduacao" name="graduacao" value="{{ old('graduacao', $instrutor->graduacao ?? '') }}" placeholder="Ex: Faixa Preta, Sensei" maxlength="45" class="campo">
             </div>
             <div>
                 <label for="contato" class="rotulo">Telefone</label>

@@ -15,7 +15,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-muted text-muted-foreground font-semibold text-sm uppercase tracking-wider border-b border-border">
+                    <tr class="bg-muted text-foreground font-semibold text-sm border-b border-border">
                         <th class="px-6 py-4">Tema</th>
                         <th class="px-6 py-4">Dia e horário</th>
                         <th class="px-6 py-4">Instrutor</th>
@@ -36,7 +36,7 @@
                             <td class="px-6 py-4 text-sm">{{ $treino->local->nome }}</td>
                             <td class="px-6 py-4 text-sm">
                                 @forelse($treino->planos as $plano)
-                                    <span class="inline-block bg-primary/20 px-2 py-0.5 rounded mr-1 mb-1">{{ $plano->nome }}</span>
+                                    <span class="inline-block border border-border px-2 py-0.5 rounded mr-1 mb-1">{{ $plano->nome }}</span>
                                 @empty
                                     <span class="text-yellow-800">Nenhum</span>
                                 @endforelse

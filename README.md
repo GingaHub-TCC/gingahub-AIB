@@ -32,7 +32,7 @@ A fundação do sistema (Autenticação, Identidade e Segurança) está operacio
 ### Segurança
 - Middlewares `aluno` e `academia` (`app/Http/Middleware/EnsureIs*.php`) restringem as rotas por tipo de usuário.
 - Toda consulta parte da academia ou do aluno logado: um usuário não acessa nem altera dados de outro (retorna 404).
-- Logout por inatividade (5 min), com aviso na tela no último minuto; login limitado a 5 tentativas por minuto.
+- Logout por inatividade (5 min), com aviso na tela no último minuto; nesta versão o login não tem limite de tentativas (decisão do grupo para a apresentação; recolocar `throttle:5,1` na rota `POST /login` antes de uso real).
 
 ### Contas de teste (senha `123456`)
 | E-mail | Perfil |

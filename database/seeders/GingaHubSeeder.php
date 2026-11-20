@@ -73,16 +73,16 @@ class GingaHubSeeder extends Seeder
         ])->id;
         $praca->save();
 
-        $mestre = $academia->instrutores()->create(['nome' => 'Mestre Bimba Jr.', 'graduacao' => 'Mestre', 'contato' => '27991112222']);
-        $prof = $academia->instrutores()->create(['nome' => 'Professora Ana', 'graduacao' => 'Contramestre', 'contato' => '27993334444']);
+        $professor = $academia->instrutores()->create(['nome' => 'Professor Carlos', 'graduacao' => 'Faixa Preta', 'contato' => '27991112222']);
+        $prof = $academia->instrutores()->create(['nome' => 'Professora Ana', 'graduacao' => 'Faixa Marrom', 'contato' => '27993334444']);
 
         $treinos = [];
         foreach ([
-            ['Capoeira Regional', $mestre, $sede, 1, '19:00', '20:30'],
-            ['Capoeira Regional', $mestre, $sede, 3, '19:00', '20:30'],
-            ['Capoeira Angola', $prof, $sede, 2, '18:30', '20:00'],
-            ['Capoeira Kids', $prof, $sede, 4, '17:00', '18:00'],
-            ['Roda Aberta', $mestre, $praca, 6, '09:00', '11:00'],
+            ['Muay Thai', $professor, $sede, 1, '19:00', '20:30'],
+            ['Muay Thai', $professor, $sede, 3, '19:00', '20:30'],
+            ['Kickboxing', $prof, $sede, 2, '18:30', '20:00'],
+            ['Karatê Kids', $prof, $sede, 4, '17:00', '18:00'],
+            ['Treino de demonstração', $professor, $praca, 6, '09:00', '11:00'],
         ] as [$tema, $instrutor, $local, $dia, $inicio, $fim]) {
             $treinos[] = $academia->treinos()->create([
                 'tema' => $tema, 'instrutor_id' => $instrutor->id, 'local_id' => $local->id,
@@ -90,22 +90,22 @@ class GingaHubSeeder extends Seeder
             ]);
         }
 
-        $regional = $academia->planos()->create(['nome' => 'Regional 2x', 'descricao' => 'Duas aulas de Regional por semana', 'valor' => 120, 'periodicidade' => 'mensal']);
-        $regional->treinos()->sync([$treinos[0]->id, $treinos[1]->id]);
+        $muayThai = $academia->planos()->create(['nome' => 'Muay Thai 2x', 'descricao' => 'Duas aulas de Muay Thai por semana', 'valor' => 120, 'periodicidade' => 'mensal']);
+        $muayThai->treinos()->sync([$treinos[0]->id, $treinos[1]->id]);
 
-        $completo = $academia->planos()->create(['nome' => 'Completo', 'descricao' => 'Todas as aulas adultas e a roda de sábado', 'valor' => 189.90, 'periodicidade' => 'mensal']);
+        $completo = $academia->planos()->create(['nome' => 'Completo', 'descricao' => 'Todas as aulas adultas e a turma de sábado', 'valor' => 189.90, 'periodicidade' => 'mensal']);
         $completo->treinos()->sync([$treinos[0]->id, $treinos[1]->id, $treinos[2]->id, $treinos[4]->id]);
 
         $kids = $academia->planos()->create(['nome' => 'Kids', 'descricao' => 'Para crianças de 6 a 12 anos', 'valor' => 90, 'periodicidade' => 'mensal']);
         $kids->treinos()->sync([$treinos[3]->id]);
 
-        $roda = $academia->planos()->create(['nome' => 'Roda de Sábado', 'valor' => 240, 'periodicidade' => 'semestral']);
-        $roda->treinos()->sync([$treinos[4]->id]);
+        $sabado = $academia->planos()->create(['nome' => 'Turma de sábado', 'valor' => 240, 'periodicidade' => 'semestral']);
+        $sabado->treinos()->sync([$treinos[4]->id]);
 
-        // 5. PEDIDO JÁ CONCLUÍDO: o aluno de teste assina o plano Regional 2x
+        // 5. PEDIDO JÁ CONCLUÍDO: o aluno de teste assina o plano Muay Thai 2x
         $matricula = Matricula::where('pessoa_fisica_id', $aluno->id)->where('pessoa_juridica_id', $academia->id)->first();
-        $pedido = Pedido::create(['matricula_id' => $matricula->id, 'valor_total' => $regional->valor, 'status' => 'pago']);
-        Assinatura::create(['matricula_id' => $matricula->id, 'plano_id' => $regional->id, 'pedido_id' => $pedido->id, 'valor' => $regional->valor, 'status' => 'ativa']);
+        $pedido = Pedido::create(['matricula_id' => $matricula->id, 'valor_total' => $muayThai->valor, 'status' => 'pago']);
+        Assinatura::create(['matricula_id' => $matricula->id, 'plano_id' => $muayThai->id, 'pedido_id' => $pedido->id, 'valor' => $muayThai->valor, 'status' => 'ativa']);
 
         // 6. SEGUNDA ACADEMIA (outra modalidade) para testar várias matrículas
         $endDojo = Endereco::create([

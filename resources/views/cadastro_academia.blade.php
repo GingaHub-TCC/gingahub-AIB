@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Academia - GingaHub</title>
+    <title>Cadastro de academia - GingaHub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,42 +12,59 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { background: '#fdf4e3', foreground: '#281606', card: '#fffbf3', primary: '#f0ad15', 'primary-foreground': '#281606', secondary: '#286f2f', accent: '#733c1a', 'accent-foreground': '#fcf8f1', muted: '#f1e6d6', border: '#decbb1', input: '#e3d5c2', ring: '#f0ad15', },
+                    colors: { background: '#f7f6f4', foreground: '#1f1a17', card: '#ffffff', primary: '#f0ad15', 'primary-foreground': '#1f1a17', secondary: '#8a5a00', accent: '#2b2724', 'accent-foreground': '#f7f6f4', muted: '#efedea', 'muted-foreground': '#57534e', border: '#dcd8d3', input: '#ffffff', ring: '#8a5a00', },
                     fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Fraunces', 'serif'] },
                 }
             }
         }
     </script>
     <style>
-        .bg-pattern { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f0ad15' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+        /* Placeholder com contraste de 7,5:1 sobre o campo branco */
+        body input::placeholder, body textarea::placeholder { color: #57534e; opacity: 1; }
+        /* Foco visível para quem navega pelo teclado */
+        a:focus-visible, button:focus-visible, input[type=checkbox]:focus-visible { outline: 2px solid #8a5a00; outline-offset: 2px; }
+        /* Quem pede menos movimento no sistema não vê transições */
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
     </style>
 </head>
-<body class="font-sans antialiased text-foreground bg-accent bg-pattern min-h-screen flex flex-col items-center justify-center p-4 py-10">
+<body class="font-sans antialiased text-foreground bg-background min-h-screen flex flex-col items-center justify-center p-4 py-10">
 
     <a href="{{ url('/') }}" class="flex items-center gap-2 mb-6 group">
         <img src="{{ asset('favicon.png') }}" alt="Logo GingaHub" class="w-10 h-10 rounded-full object-cover object-center" />
-        <span class="font-serif text-2xl font-bold text-accent-foreground tracking-[-0.01em]">GingaHub</span>
+        <span class="font-serif text-2xl font-bold text-foreground tracking-[-0.01em]">GingaHub</span>
     </a>
 
-    <div class="bg-card w-full max-w-2xl rounded-2xl shadow-xl border border-border overflow-hidden">
+    <div class="bg-card w-full max-w-2xl rounded-2xl shadow-sm border border-border overflow-hidden">
         
         <div class="grid grid-cols-2 border-b border-border bg-muted">
             <a href="{{ route('aluno.create') }}" class="text-center py-4 text-muted-foreground hover:bg-input/50 transition-colors font-medium border-r border-border">
-                Sou Aluno
+                Sou aluno
             </a>
-            <div class="text-center py-4 bg-card border-b-2 border-primary font-semibold text-primary cursor-default">
-                Sou Academia/Mestre
+            <div class="text-center py-4 bg-card border-b-2 border-primary font-semibold text-foreground cursor-default" aria-current="page">
+                Sou academia
             </div>
         </div>
 
         <div class="p-8">
             <div class="mb-8">
-                <h1 class="font-serif text-3xl font-bold text-foreground mb-2">Cadastro de Academia</h1>
-                <p class="text-muted-foreground/80 text-sm">Organize suas turmas e faça a gestão do seu grupo na plataforma.</p>
+                <h1 class="font-serif text-3xl font-bold text-foreground mb-2">Cadastro de academia</h1>
+                <p class="text-muted-foreground text-sm">Organize suas turmas e faça a gestão do seu grupo na plataforma.</p>
             </div>
 
+            @if (session('success'))
+                <div class="bg-green-50 border border-green-600 p-4 mb-6 rounded-md" role="status">
+                    <p class="text-sm text-green-800 font-medium">{{ session('success') }}</p>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="bg-red-50 border border-red-500 p-4 mb-6 rounded-md" role="alert">
+                    <p class="text-sm text-red-700 font-medium">{{ session('error') }}</p>
+                </div>
+            @endif
+
             @if ($errors->any())
-                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-md">
+                <div class="bg-red-50 border border-red-500 p-4 mb-6 rounded-md" role="alert">
                     <ul class="list-disc list-inside text-sm text-red-700 font-medium">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -60,102 +77,94 @@
                 @csrf 
                 
                 <div>
-                    <h3 class="font-serif text-xl text-secondary font-bold mb-4 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        Dados da Instituição
-                    </h3>
+                    <h2 class="font-serif text-xl text-foreground font-bold mb-4">
+                        Dados da instituição
+                    </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-foreground mb-1">Responsável / Mestre</label>
-                            <input type="text" name="nome" value="{{ old('nome') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-nome" class="block text-sm font-medium text-foreground mb-1">Responsável</label>
+                            <input type="text" id="campo-nome" name="nome" value="{{ old('nome') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-foreground mb-1">Nome Fantasia (Grupo)</label>
-                            <input type="text" name="nome_fantasia" value="{{ old('nome_fantasia') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-nome_fantasia" class="block text-sm font-medium text-foreground mb-1">Nome fantasia (grupo)</label>
+                            <input type="text" id="campo-nome_fantasia" name="nome_fantasia" value="{{ old('nome_fantasia') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-foreground mb-1">Razão Social</label>
-                            <input type="text" name="razao_social" value="{{ old('razao_social') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-razao_social" class="block text-sm font-medium text-foreground mb-1">Razão social</label>
+                            <input type="text" id="campo-razao_social" name="razao_social" value="{{ old('razao_social') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-foreground mb-1">CNPJ</label>
-                            <input type="text" name="cnpj" value="{{ old('cnpj') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-cnpj" class="block text-sm font-medium text-foreground mb-1">CNPJ</label>
+                            <input type="text" id="campo-cnpj" name="cnpj" value="{{ old('cnpj') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-foreground mb-1">E-mail Institucional</label>
-                            <input type="email" name="email" value="{{ old('email') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-email" class="block text-sm font-medium text-foreground mb-1"><span class="whitespace-nowrap">E-mail</span> institucional</label>
+                            <input type="email" id="campo-email" name="email" value="{{ old('email') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-foreground mb-1">Contato Telefônico</label>
-                            <input type="text" name="contato" value="{{ old('contato') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-contato" class="block text-sm font-medium text-foreground mb-1">Contato telefônico</label>
+                            <input type="text" id="campo-contato" name="contato" value="{{ old('contato') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h3 class="font-serif text-xl text-secondary font-bold mb-4 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                        Sede / Espaço
-                    </h3>
+                    <h2 class="font-serif text-xl text-foreground font-bold mb-4">
+                        Sede ou espaço
+                    </h2>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="md:col-span-1">
-                            <label class="block text-sm font-medium text-foreground mb-1">CEP</label>
-                            <input type="text" name="cep" value="{{ old('cep') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-cep" class="block text-sm font-medium text-foreground mb-1">CEP</label>
+                            <input type="text" id="campo-cep" name="cep" value="{{ old('cep') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-foreground mb-1">Logradouro</label>
-                            <input type="text" name="logradouro" value="{{ old('logradouro') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-logradouro" class="block text-sm font-medium text-foreground mb-1">Logradouro</label>
+                            <input type="text" id="campo-logradouro" name="logradouro" value="{{ old('logradouro') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div class="md:col-span-1">
-                            <label class="block text-sm font-medium text-foreground mb-1">Número</label>
-                            <input type="text" name="numero" value="{{ old('numero') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-numero" class="block text-sm font-medium text-foreground mb-1">Número</label>
+                            <input type="text" id="campo-numero" name="numero" value="{{ old('numero') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-foreground mb-1">Bairro</label>
-                            <input type="text" name="bairro" value="{{ old('bairro') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-bairro" class="block text-sm font-medium text-foreground mb-1">Bairro</label>
+                            <input type="text" id="campo-bairro" name="bairro" value="{{ old('bairro') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div class="md:col-span-1">
-                            <label class="block text-sm font-medium text-foreground mb-1">Cidade</label>
-                            <input type="text" name="cidade" value="{{ old('cidade') }}" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-cidade" class="block text-sm font-medium text-foreground mb-1">Cidade</label>
+                            <input type="text" id="campo-cidade" name="cidade" value="{{ old('cidade') }}" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div class="md:col-span-1">
-                            <label class="block text-sm font-medium text-foreground mb-1">UF</label>
-                            <input type="text" name="estado" value="{{ old('estado') }}" maxlength="2" placeholder="Ex: BA" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all uppercase">
+                            <label for="campo-estado" class="block text-sm font-medium text-foreground mb-1">UF</label>
+                            <input type="text" id="campo-estado" name="estado" value="{{ old('estado') }}" maxlength="2" placeholder="BA" required class="placeholder-muted-foreground w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all uppercase">
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h3 class="font-serif text-xl text-secondary font-bold mb-4 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <h2 class="font-serif text-xl text-foreground font-bold mb-4">
                         Segurança
-                    </h3>
+                    </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-foreground mb-1">Senha de Acesso</label>
-                            <input type="password" name="senha" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-senha" class="block text-sm font-medium text-foreground mb-1">Senha de acesso</label>
+                            <input type="password" id="campo-senha" name="senha" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-foreground mb-1">Confirmar Senha</label>
-                            <input type="password" name="senha_confirmation" required class="w-full bg-input border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
+                            <label for="campo-senha_confirmation" class="block text-sm font-medium text-foreground mb-1">Confirmar senha</label>
+                            <input type="password" id="campo-senha_confirmation" name="senha_confirmation" required class="w-full bg-input border border-[#8a847e] rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all">
                         </div>
                     </div>
                 </div>
 
                 <div class="pt-4 border-t border-border">
-                    <label class="flex items-start gap-3 mb-6 cursor-pointer">
-                        <input type="checkbox" required class="mt-1 accent-primary w-4 h-4 rounded border-border focus:ring-primary">
-                        <span class="text-sm text-foreground/80">Declaro que li e concordo com os <a href="#" class="text-secondary font-semibold hover:underline">Termos de Uso</a> para Academias.</span>
-                    </label>
-                    
                     <button type="submit" class="w-full bg-primary text-primary-foreground font-semibold py-3 rounded-md hover:brightness-105 transition-all shadow-sm text-lg">
-                        Finalizar Cadastro Institucional
+                        Finalizar cadastro institucional
                     </button>
                 </div>
             </form>
 
             <div class="mt-6 text-center">
-                <p class="text-foreground/70 text-sm">
+                <p class="text-muted-foreground text-sm">
                     Já possui conta? <a href="{{ route('login') }}" class="text-secondary font-semibold hover:underline">Faça login aqui</a>
                 </p>
             </div>

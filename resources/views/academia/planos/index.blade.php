@@ -17,7 +17,7 @@
                 <div class="flex items-start justify-between gap-2 mb-1">
                     <h2 class="font-serif text-xl font-semibold">{{ $plano->nome }}</h2>
                     @if($plano->ativo)
-                        <span class="text-xs bg-secondary/10 text-secondary font-medium px-2 py-0.5 rounded">À venda</span>
+                        <span class="text-xs border border-border text-foreground font-medium px-2 py-0.5 rounded">À venda</span>
                     @else
                         <span class="text-xs bg-muted text-muted-foreground font-medium px-2 py-0.5 rounded">Desativado</span>
                     @endif
@@ -27,10 +27,10 @@
                     <p class="text-sm text-muted-foreground mb-3">{{ $plano->descricao }}</p>
                 @endif
 
-                <p class="text-xs font-semibold uppercase tracking-wider text-accent mb-2">Treinos liberados ({{ $plano->treinos->count() }})</p>
+                <p class="text-sm font-semibold text-foreground mb-2">Treinos liberados ({{ $plano->treinos->count() }})</p>
                 <ul class="text-sm space-y-1 mb-4 flex-1">
                     @forelse($plano->treinos as $treino)
-                        <li>{{ $treino->tema }} <span class="text-muted-foreground">· {{ \Illuminate\Support\Str::limit($treino->dia_semana_nome, 3, '') }} {{ substr($treino->hora_inicio, 0, 5) }}</span></li>
+                        <li>{{ $treino->tema }} <span class="text-muted-foreground numeros">({{ \Illuminate\Support\Str::limit($treino->dia_semana_nome, 3, '') }} {{ substr($treino->hora_inicio, 0, 5) }})</span></li>
                     @empty
                         <li class="text-yellow-800">Nenhum treino selecionado.</li>
                     @endforelse

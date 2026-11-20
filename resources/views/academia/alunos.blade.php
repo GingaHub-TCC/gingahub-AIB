@@ -12,7 +12,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-muted text-muted-foreground font-semibold text-sm uppercase tracking-wider border-b border-border">
+                    <tr class="bg-muted text-foreground font-semibold text-sm border-b border-border">
                         <th class="px-6 py-4">Aluno</th>
                         <th class="px-6 py-4">Contato</th>
                         <th class="px-6 py-4">Matrícula</th>
@@ -30,7 +30,7 @@
                             <td class="px-6 py-4 text-sm text-muted-foreground">{{ $matricula->aluno->pessoa->contato ?: '-' }}</td>
                             <td class="px-6 py-4 text-sm">
                                 @if($matricula->status === 'ativa')
-                                    <span class="inline-block bg-secondary/10 text-secondary font-medium px-2 py-0.5 rounded">Ativa</span>
+                                    <span class="inline-block border border-border text-foreground font-medium px-2 py-0.5 rounded">Ativa</span>
                                     <p class="text-muted-foreground mt-1">desde {{ $matricula->data_matricula?->format('d/m/Y') }}</p>
                                 @else
                                     <span class="inline-block bg-muted text-muted-foreground font-medium px-2 py-0.5 rounded">Inativa</span>
@@ -39,7 +39,7 @@
                             </td>
                             <td class="px-6 py-4 text-sm">
                                 @forelse($ativas as $assinatura)
-                                    <span class="inline-block bg-primary/20 text-foreground px-2 py-0.5 rounded mr-1 mb-1">{{ $assinatura->plano->nome }}</span>
+                                    <span class="inline-block border border-border text-foreground px-2 py-0.5 rounded mr-1 mb-1">{{ $assinatura->plano->nome }}</span>
                                 @empty
                                     <span class="text-muted-foreground">Nenhum</span>
                                 @endforelse

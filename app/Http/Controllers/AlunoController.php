@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Rules\Cpf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 
 class AlunoController extends Controller
 {
@@ -21,17 +23,32 @@ class AlunoController extends Controller
 
     // Recebe e salva os dados
     public function store(Request $request) {
-        $request->merge(['email' => strtolower($request->email)]);
-        
+        // CPF com máscara vira só dígitos antes de validar, para a checagem de unicidade
+        // comparar com o que está gravado no banco (só dígitos).
+        $request->merge([
+            'email' => strtolower($request->email),
+            'cpf'   => Cpf::normalizar($request->cpf),
+            'estado' => strtoupper((string) $request->estado),
+        ]);
+
         // Validação: Se algo estiver errado, o Laravel volta para o formulário com o erro
         $request->validate([
             'nome'     => 'required|string|max:45',
+            'sobrenome' => 'required|string|max:45',
             'cpf' => ['required', 'unique:pessoa_fisicas,cpf', new Cpf()],
-            'contato'  => ['required', 'string', 'regex:/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/'], // Aceita (27) 99999-9999 ou 27999999999
+            // RF01: só (27) 99999-9999, (27) 9999-9999 ou só dígitos com DDD (10 ou 11)
+            'contato'  => ['required', 'string', 'regex:/^(?:\(\d{2}\) \d{4,5}-\d{4}|\d{10,11})$/'],
             'email'    => 'required|email|unique:pessoas,email',
             'senha'    => 'required|min:6|confirmed', // 'confirmed' exige um campo senha_confirmation no HTML
+            'cep'        => ['required', 'regex:/^\d{5}-?\d{3}$/'],
+            'logradouro' => 'required|string|max:150',
+            'numero'     => 'required|string|max:20',
+            'bairro'     => 'required|string|max:100',
+            'cidade'     => 'required|string|max:100',
+            'estado'     => 'required|alpha|size:2',
         ], [
-            'contato.regex' => 'O formato do telefone deve ser (99) 99999-9999.',
+            'cep.regex' => 'O CEP deve ter 8 dígitos, com ou sem hífen (ex.: 29000-000 ou 29000000).',
+            'contato.regex' => 'O telefone deve estar no formato (27) 99999-9999, (27) 9999-9999 ou só números com DDD (27999999999).',
             'email.unique'  => 'Este e-mail já está cadastrado em nossa base.',
             'senha.confirmed' => 'As senhas digitadas não são iguais.',
             'senha.min' => 'A senha deve ter pelo menos 6 caracteres.',
@@ -77,8 +94,24 @@ class AlunoController extends Controller
             // Se QUALQUER erro acontecer (SQL, PHP, etc.), desfaz tudo o que foi feito acima
             DB::rollBack();
 
-            // Logar o erro para saber o que aconteceu
-            return redirect()->back()->with('error', 'Falha ao cadastrar: ' . $e->getMessage());
+            // Registra o detalhe técnico no log; a tela recebe só uma mensagem clara
+            Log::error('Falha ao cadastrar aluno', ['erro' => $e->getMessage()]);
+
+            // Duplicidade recusada pelo banco (índice único): aponta o campo certo
+            if ($e instanceof QueryException && ($e->errorInfo[1] ?? null) == 1062) {
+                $detalhe = (string) ($e->errorInfo[2] ?? ''); // "Duplicate entry ... for key '...'"
+                if (str_contains($detalhe, 'cpf')) {
+                    return redirect()->back()->withInput($request->except('senha', 'senha_confirmation'))
+                        ->withErrors(['cpf' => 'Este CPF já está cadastrado.']);
+                }
+                if (str_contains($detalhe, 'email')) {
+                    return redirect()->back()->withInput($request->except('senha', 'senha_confirmation'))
+                        ->withErrors(['email' => 'Este e-mail já está cadastrado em nossa base.']);
+                }
+            }
+
+            return redirect()->back()->withInput($request->except('senha', 'senha_confirmation'))
+                ->with('error', 'Não foi possível concluir o cadastro. Confira os dados e tente novamente.');
         }
     }
 

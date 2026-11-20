@@ -17,7 +17,7 @@
                 <h2 class="font-serif text-xl font-semibold mb-2">{{ $local->nome }}</h2>
                 <p class="text-sm text-muted-foreground flex-1">
                     {{ $local->endereco->logradouro }}, {{ $local->endereco->numero }}{{ $local->endereco->complemento ? ' - ' . $local->endereco->complemento : '' }}<br>
-                    {{ $local->endereco->bairro }} · {{ $local->endereco->cidade }}/{{ $local->endereco->estado }}<br>
+                    {{ $local->endereco->bairro }}, {{ $local->endereco->cidade }}/{{ $local->endereco->estado }}<br>
                     CEP {{ substr($local->endereco->cep, 0, 5) }}-{{ substr($local->endereco->cep, 5) }}
                 </p>
                 <p class="text-sm mt-3 mb-4">{{ $local->treinos_count }} treino(s) neste local</p>

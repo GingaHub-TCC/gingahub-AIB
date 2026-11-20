@@ -77,7 +77,7 @@ class LocalController extends Controller
             'cidade' => 'required|string|max:100',
             'estado' => 'required|alpha|size:2',
         ], [
-            'cep.regex' => 'O CEP deve ter o formato 99999-999.',
+            'cep.regex' => 'O CEP deve ter 8 dígitos, com ou sem hífen (ex.: 29000-000 ou 29000000).',
             'estado.size' => 'Use a sigla do estado (ex: ES).',
         ]);
 

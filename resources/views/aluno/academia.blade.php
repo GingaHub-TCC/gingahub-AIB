@@ -9,8 +9,8 @@
         <div>
             <h1 class="font-serif text-3xl md:text-4xl font-bold mb-1">{{ $academia->nome_fantasia }}</h1>
             <p class="text-muted-foreground">
-                {{ $academia->pessoa->endereco->cidade }}/{{ $academia->pessoa->endereco->estado }}
-                · Matriculado desde {{ $matricula->data_matricula?->format('d/m/Y') }}
+                {{ $academia->pessoa->endereco->cidade }}/{{ $academia->pessoa->endereco->estado }}.
+                Matriculado desde {{ $matricula->data_matricula?->format('d/m/Y') }}
             </p>
         </div>
         <form action="{{ route('aluno.desmatricular', $academia->id) }}" method="POST" onsubmit="return confirm('Desmatricular-se desta academia? Todas as suas assinaturas aqui serão inativadas.')">
@@ -23,7 +23,7 @@
 
         <!-- Vitrine de planos -->
         <section class="lg:col-span-2 space-y-6">
-            <h2 class="font-serif text-2xl font-semibold">Planos disponíveis</h2>
+            <h2 class="font-serif text-xl font-semibold">Planos disponíveis</h2>
 
             @forelse($planos as $plano)
                 @php
@@ -33,18 +33,18 @@
                 <article class="bg-card border rounded-2xl p-6 {{ $assinado ? 'border-secondary' : ($noCarrinho ? 'border-primary' : 'border-border') }}">
                     <div class="flex flex-wrap items-start justify-between gap-4 mb-3">
                         <div>
-                            <h3 class="font-serif text-xl font-semibold">{{ $plano->nome }}</h3>
+                            <h3 class="font-serif text-lg font-semibold">{{ $plano->nome }}</h3>
                             @if($plano->descricao)
                                 <p class="text-sm text-muted-foreground">{{ $plano->descricao }}</p>
                             @endif
                         </div>
                         <p class="text-right">
-                            <span class="font-serif text-2xl font-bold">{{ $plano->valor_formatado }}</span><br>
+                            <span class="font-serif text-2xl font-bold numeros">{{ $plano->valor_formatado }}</span><br>
                             <span class="text-sm text-muted-foreground">{{ strtolower(\App\Models\Plano::PERIODICIDADES[$plano->periodicidade]) }}</span>
                         </p>
                     </div>
 
-                    <p class="text-xs font-semibold uppercase tracking-wider text-accent mb-2">Treinos incluídos</p>
+                    <p class="text-sm font-semibold text-foreground mb-2">Treinos incluídos</p>
                     @if($plano->treinos->isEmpty())
                         <p class="text-sm text-muted-foreground mb-4">A academia ainda não vinculou treinos a este plano.</p>
                     @else
@@ -53,14 +53,14 @@
                                 <li class="text-sm bg-background border border-border rounded-lg px-3 py-2">
                                     <span class="font-medium block">{{ $treino->tema }}</span>
                                     <span class="text-muted-foreground">{{ $treino->dia_semana_nome }}, {{ $treino->horario }}</span><br>
-                                    <span class="text-muted-foreground">{{ $treino->instrutor->nome }} · {{ $treino->local->nome }}</span>
+                                    <span class="text-muted-foreground">com {{ $treino->instrutor->nome }}, em {{ $treino->local->nome }}</span>
                                 </li>
                             @endforeach
                         </ul>
                     @endif
 
                     @if($assinado)
-                        <span class="inline-flex items-center gap-1 text-sm font-medium text-secondary">✓ Você já assina este plano</span>
+                        <span class="inline-flex items-center gap-1 text-sm font-medium text-secondary">Você já assina este plano</span>
                     @elseif($noCarrinho)
                         <form action="{{ route('carrinho.remover', [$academia->id, $plano->id]) }}" method="POST">
                             @csrf @method('DELETE')
@@ -102,7 +102,7 @@
                                     <span class="font-medium">{{ $item->valor_formatado }}</span>
                                     <form action="{{ route('carrinho.remover', [$academia->id, $item->id]) }}" method="POST">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-700 hover:underline" title="Remover">✕</button>
+                                        <button type="submit" class="text-red-700 underline text-xs" aria-label="Remover {{ $item->nome }} do carrinho">Remover</button>
                                     </form>
                                 </span>
                             </li>

@@ -6,7 +6,7 @@
     <!-- Título da Página -->
     <div class="mb-8">
         <h1 class="font-serif text-3xl md:text-4xl font-bold text-foreground mb-2">Academias Parceiras</h1>
-        <p class="text-muted-foreground/80 text-lg">Encontre sua roda. Escolha uma academia abaixo para se matricular.</p>
+        <p class="text-muted-foreground text-lg">Encontre onde treinar. Escolha uma academia abaixo para se matricular.</p>
     </div>
 
     <!-- Container da Tabela -->
@@ -14,7 +14,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-muted text-muted-foreground font-semibold text-sm uppercase tracking-wider border-b border-border">
+                    <tr class="bg-muted text-foreground font-semibold text-sm border-b border-border">
                         <th class="px-6 py-4">Nome Fantasia</th>
                         <th class="px-6 py-4">Cidade</th>
                         <th class="px-6 py-4 text-right">Ação</th>
@@ -29,7 +29,7 @@
                         </td>
                         <td class="px-6 py-4 text-muted-foreground">
                             <div class="flex items-center gap-1.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-accent/60"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                                 {{ $academia->pessoa->endereco->cidade }}
                             </div>
                         </td>
@@ -71,9 +71,6 @@
         <!-- Empty State -->
         @if(count($academias) == 0)
             <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
-                <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-accent mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                </div>
                 <h3 class="font-serif text-xl font-semibold text-foreground mb-1">Nenhuma academia encontrada</h3>
                 <p class="text-muted-foreground max-w-sm">Ainda não há academias parceiras cadastradas no sistema. Volte novamente mais tarde!</p>
             </div>

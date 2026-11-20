@@ -9,6 +9,8 @@ use App\Models\Endereco;
 use App\Models\Pessoa;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 
 class AcademiaController extends Controller
 {
@@ -65,7 +67,13 @@ class AcademiaController extends Controller
 
     // Recebe e salva os dados
     public function store(Request $request) {
-        $request->merge(['email' => strtolower($request->email)]);
+        // CNPJ sem máscara e em maiúsculas antes de validar, para a checagem de unicidade
+        // comparar com o que está gravado no banco.
+        $request->merge([
+            'email' => strtolower($request->email),
+            'cnpj'  => Cnpj::normalizar($request->cnpj),
+            'estado' => strtoupper((string) $request->estado),
+        ]);
 
         // Validação: Se algo estiver errado, o Laravel volta para o formulário com o erro
         $request->validate([
@@ -75,9 +83,17 @@ class AcademiaController extends Controller
             'cnpj' => ['required', 'unique:pessoa_juridicas,cnpj', new Cnpj()],
             'razao_social' => 'required|unique:pessoa_juridicas,razao_social',
             'nome_fantasia' => 'required|max:100',
-            'cep' => 'required',
+            // RF02 (mesmo formato do RF01): (27) 99999-9999, (27) 9999-9999 ou só dígitos com DDD
+            'contato' => ['required', 'string', 'regex:/^(?:\(\d{2}\) \d{4,5}-\d{4}|\d{10,11})$/'],
+            'cep' => ['required', 'regex:/^\d{5}-?\d{3}$/'],
+            'logradouro' => 'required|string|max:150',
+            'numero' => 'required|string|max:20',
+            'bairro' => 'required|string|max:100',
+            'cidade' => 'required|string|max:100',
+            'estado' => 'required|alpha|size:2',
         ], [
-            'contato.regex' => 'O formato do telefone deve ser (99) 99999-9999.',
+            'cep.regex' => 'O CEP deve ter 8 dígitos, com ou sem hífen (ex.: 29000-000 ou 29000000).',
+            'contato.regex' => 'O telefone deve estar no formato (27) 99999-9999, (27) 9999-9999 ou só números com DDD (27999999999).',
             'email.unique'  => 'Este e-mail já está cadastrado em nossa base.',
             'senha.confirmed' => 'As senhas digitadas não são iguais.',
             'senha.min' => 'A senha deve ter pelo menos 6 caracteres.',
@@ -88,8 +104,8 @@ class AcademiaController extends Controller
             // Inicia a "sacola" de operações
             DB::beginTransaction();
 
-            // Remove pontos, traços e barras antes de salvar
-            $cnpjLimpo = preg_replace('/[^0-9]/', '', $request->cnpj);
+            // Remove só pontos, traços e barras (mantém letras, em maiúsculas) antes de salvar
+            $cnpjLimpo = strtoupper(preg_replace('/[.\/-]/', '', trim($request->cnpj)));
             $contatoLimpo = preg_replace('/[^0-9]/', '', $request->contato);
             $cepLimpo = preg_replace('/[^0-9]/', '', $request->cep);
 
@@ -119,8 +135,28 @@ class AcademiaController extends Controller
             // Se QUALQUER erro acontecer (SQL, PHP, etc.), desfaz tudo o que foi feito acima
             DB::rollBack();
 
-            // Logar o erro para saber o que aconteceu
-            return redirect()->back()->with('error', 'Falha ao cadastrar: ' . $e->getMessage());
+            // Registra o detalhe técnico no log; a tela recebe só uma mensagem clara
+            Log::error('Falha ao cadastrar academia', ['erro' => $e->getMessage()]);
+
+            $entrada = $request->except('senha', 'senha_confirmation');
+
+            // Duplicidade recusada pelo banco (índice único): aponta o campo certo
+            if ($e instanceof QueryException && ($e->errorInfo[1] ?? null) == 1062) {
+                $detalhe = (string) ($e->errorInfo[2] ?? ''); // "Duplicate entry ... for key '...'"
+                $campos = [
+                    'cnpj'         => ['cnpj', 'Este CNPJ já está cadastrado.'],
+                    'razao_social' => ['razao_social', 'Esta razão social já está cadastrada.'],
+                    'email'        => ['email', 'Este e-mail já está cadastrado em nossa base.'],
+                ];
+                foreach ($campos as $indice => [$campo, $mensagem]) {
+                    if (str_contains($detalhe, $indice)) {
+                        return redirect()->back()->withInput($entrada)->withErrors([$campo => $mensagem]);
+                    }
+                }
+            }
+
+            return redirect()->back()->withInput($entrada)
+                ->with('error', 'Não foi possível concluir o cadastro. Confira os dados e tente novamente.');
         }
     }  
 }

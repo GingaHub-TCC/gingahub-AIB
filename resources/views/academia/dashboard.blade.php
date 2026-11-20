@@ -4,13 +4,13 @@
 
 @section('conteudo')
     <div class="mb-8">
-        <p class="text-sm uppercase tracking-wider text-muted-foreground mb-1">Painel da Academia</p>
-        <h1 class="font-serif text-3xl md:text-4xl font-bold">{{ $academia->nome_fantasia }}</h1>
+        <h1 class="font-serif text-3xl md:text-4xl font-bold mb-2">{{ $academia->nome_fantasia }}</h1>
+        <p class="text-muted-foreground">Alunos, assinaturas, planos e grade de treinos da academia.</p>
     </div>
 
     <!-- Primeiros passos (some quando tudo estiver cadastrado) -->
     @if(in_array(true, $pendencias, true))
-        <div class="bg-card border border-primary/50 rounded-2xl p-6 mb-8">
+        <div class="bg-card border border-border rounded-2xl p-6 mb-8">
             <h2 class="font-serif text-xl font-semibold mb-1">Primeiros passos</h2>
             <p class="text-sm text-muted-foreground mb-4">Siga a ordem abaixo para deixar sua academia pronta para receber assinaturas.</p>
             <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -22,9 +22,9 @@
                 ] as [$chave, $texto, $rota])
                     <li>
                         @if($pendencias[$chave])
-                            <a href="{{ route($rota) }}" class="block border border-border rounded-lg px-4 py-3 hover:border-primary hover:bg-primary/10 transition-colors font-medium text-sm">{{ $texto }} &rarr;</a>
+                            <a href="{{ route($rota) }}" class="block border border-border rounded-lg px-4 py-3 hover:border-primary hover:bg-primary/10 transition-colors font-medium text-sm">{{ $texto }}</a>
                         @else
-                            <span class="block border border-secondary/30 bg-secondary/10 text-secondary rounded-lg px-4 py-3 font-medium text-sm">✓ {{ substr($texto, 3) }}</span>
+                            <span class="block border border-border bg-muted text-muted-foreground rounded-lg px-4 py-3 font-medium text-sm">Feito: {{ substr($texto, 3) }}</span>
                         @endif
                     </li>
                 @endforeach
@@ -57,15 +57,15 @@
 
             @forelse($treinos as $dia => $treinosDoDia)
                 <div class="px-6 py-4 border-b border-border last:border-0">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-accent mb-2">{{ \App\Models\Treino::DIAS_SEMANA[$dia] }}</p>
+                    <p class="text-sm font-semibold text-foreground mb-2">{{ \App\Models\Treino::DIAS_SEMANA[$dia] }}</p>
                     <ul class="space-y-2">
                         @foreach($treinosDoDia as $treino)
                             <li class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                                <span class="font-mono font-medium w-28">{{ $treino->horario }}</span>
+                                <span class="numeros font-medium w-28">{{ $treino->horario }}</span>
                                 <span class="font-medium">{{ $treino->tema }}</span>
-                                <span class="text-muted-foreground">{{ $treino->instrutor->nome }} · {{ $treino->local->nome }}</span>
+                                <span class="text-muted-foreground">com {{ $treino->instrutor->nome }}, em {{ $treino->local->nome }}</span>
                                 @if($treino->planos_count == 0)
-                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Fora de todos os planos</span>
+                                    <span class="text-xs border border-border text-foreground px-2 py-0.5 rounded">Fora de todos os planos</span>
                                 @endif
                             </li>
                         @endforeach
@@ -87,9 +87,9 @@
                     <li class="px-6 py-3 text-sm">
                         <div class="flex justify-between gap-2">
                             <span class="font-medium">{{ $assinatura->matricula->aluno->pessoa->nome }} {{ $assinatura->matricula->aluno->sobrenome }}</span>
-                            <span class="{{ $assinatura->status === 'ativa' ? 'text-secondary' : 'text-muted-foreground line-through' }}">R$ {{ number_format($assinatura->valor, 2, ',', '.') }}</span>
+                            <span class="numeros {{ $assinatura->status === 'ativa' ? 'text-secondary' : 'text-muted-foreground line-through' }}">R$ {{ number_format($assinatura->valor, 2, ',', '.') }}</span>
                         </div>
-                        <div class="text-muted-foreground">{{ $assinatura->plano->nome }} · {{ $assinatura->created_at->format('d/m/Y') }}</div>
+                        <div class="text-muted-foreground">{{ $assinatura->plano->nome }}, desde {{ $assinatura->created_at->format('d/m/Y') }}</div>
                     </li>
                 @empty
                     <li class="px-6 py-10 text-center text-muted-foreground">Nenhuma assinatura ainda.</li>

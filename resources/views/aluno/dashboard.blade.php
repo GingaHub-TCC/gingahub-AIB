@@ -4,8 +4,8 @@
 
 @section('conteudo')
     <div class="mb-8">
-        <p class="text-sm uppercase tracking-wider text-muted-foreground mb-1">Meu painel</p>
-        <h1 class="font-serif text-3xl md:text-4xl font-bold">Olá, {{ Auth::user()->nome }}!</h1>
+        <h1 class="font-serif text-3xl md:text-4xl font-bold mb-2">Meu painel</h1>
+        <p class="text-muted-foreground">Matrículas, planos assinados e treinos da semana de {{ Auth::user()->nome }}.</p>
     </div>
 
     <!-- Números gerais -->
@@ -29,8 +29,9 @@
         <!-- Minhas academias -->
         <section class="lg:col-span-3 space-y-4">
             <div class="flex items-center justify-between">
-                <h2 class="font-serif text-2xl font-semibold">Minhas academias</h2>
-                <a href="{{ route('academias.listar') }}" class="btn btn-primario btn-pequeno">Encontrar academias</a>
+                <h2 class="font-serif text-xl font-semibold">Minhas academias</h2>
+                {{-- Sem matrícula, o botão de destaque é o do aviso vazio logo abaixo --}}
+                <a href="{{ route('academias.listar') }}" class="btn {{ $matriculas->isEmpty() ? 'btn-contorno' : 'btn-primario' }} btn-pequeno">Encontrar academias</a>
             </div>
 
             @forelse($matriculas as $matricula)
@@ -38,10 +39,9 @@
                 <article class="bg-card border border-border rounded-2xl p-6 {{ $matricula->status === 'ativa' ? '' : 'opacity-70' }}">
                     <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
                         <div>
-                            <h3 class="font-serif text-xl font-semibold">{{ $matricula->academia->nome_fantasia }}</h3>
+                            <h3 class="font-serif text-lg font-semibold">{{ $matricula->academia->nome_fantasia }}</h3>
                             <p class="text-sm text-muted-foreground">
-                                {{ $matricula->academia->pessoa->endereco->cidade }}/{{ $matricula->academia->pessoa->endereco->estado }}
-                                ·
+                                {{ $matricula->academia->pessoa->endereco->cidade }}/{{ $matricula->academia->pessoa->endereco->estado }}.
                                 @if($matricula->status === 'ativa')
                                     <span class="text-secondary font-medium">Matrícula ativa</span>
                                 @else
@@ -50,7 +50,7 @@
                             </p>
                         </div>
                         @if($matricula->status === 'ativa')
-                            <a href="{{ route('aluno.academia', $matricula->pessoa_juridica_id) }}" class="btn btn-secundario btn-pequeno">Abrir academia</a>
+                            <a href="{{ route('aluno.academia', $matricula->pessoa_juridica_id) }}" class="btn btn-contorno btn-pequeno">Abrir academia</a>
                         @else
                             <form action="{{ route('aluno.matricular', $matricula->pessoa_juridica_id) }}" method="POST">
                                 @csrf
@@ -62,7 +62,7 @@
                     @if($matricula->status === 'ativa')
                         @forelse($assinaturasDaMatricula as $assinatura)
                             <div class="flex items-center justify-between text-sm border-t border-border py-2">
-                                <span><span class="font-medium">{{ $assinatura->plano->nome }}</span> <span class="text-muted-foreground">· R$ {{ number_format($assinatura->valor, 2, ',', '.') }} {{ strtolower(\App\Models\Plano::PERIODICIDADES[$assinatura->plano->periodicidade]) }}</span></span>
+                                <span><span class="font-medium">{{ $assinatura->plano->nome }}</span><span class="text-muted-foreground numeros">, R$ {{ number_format($assinatura->valor, 2, ',', '.') }} {{ strtolower(\App\Models\Plano::PERIODICIDADES[$assinatura->plano->periodicidade]) }}</span></span>
                                 <span class="text-muted-foreground">desde {{ $assinatura->data_inicio->format('d/m/Y') }}</span>
                             </div>
                         @empty
@@ -72,7 +72,7 @@
                 </article>
             @empty
                 <div class="bg-card border border-border rounded-2xl py-16 px-4 text-center">
-                    <h3 class="font-serif text-xl font-semibold mb-1">Você ainda não está em nenhuma roda</h3>
+                    <h3 class="font-serif text-lg font-semibold mb-1">Você ainda não está matriculado em nenhuma academia</h3>
                     <p class="text-muted-foreground mb-4">Encontre uma academia e faça sua matrícula.</p>
                     <a href="{{ route('academias.listar') }}" class="btn btn-primario">Ver academias</a>
                 </div>
@@ -90,10 +90,10 @@
                     <li class="px-6 py-3 text-sm">
                         <div class="flex justify-between gap-2">
                             <span class="font-medium">{{ $item['treino']->tema }}</span>
-                            <span class="font-mono text-muted-foreground">{{ substr($item['treino']->hora_inicio, 0, 5) }}</span>
+                            <span class="numeros text-muted-foreground">{{ substr($item['treino']->hora_inicio, 0, 5) }}</span>
                         </div>
-                        <div class="text-muted-foreground">{{ $item['treino']->dia_semana_nome }} · {{ $item['treino']->local->nome }} · {{ $item['treino']->instrutor->nome }}</div>
-                        <div class="text-xs text-accent">{{ $item['academia'] }}</div>
+                        <div class="text-muted-foreground">{{ $item['treino']->dia_semana_nome }}, em {{ $item['treino']->local->nome }}, com {{ $item['treino']->instrutor->nome }}</div>
+                        <div class="text-xs text-muted-foreground">{{ $item['academia'] }}</div>
                     </li>
                 @empty
                     <li class="px-6 py-10 text-center text-sm text-muted-foreground">Assine um plano para ver seus treinos aqui.</li>

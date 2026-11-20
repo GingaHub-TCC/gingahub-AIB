@@ -14,7 +14,7 @@ use Tests\TestCase;
 /**
  * Testa os fluxos principais usando os dados do GingaHubSeeder:
  * - academia@teste.com (Ginga Fit) / dojo@teste.com (Dojo Sol Nascente)
- * - aluno@teste.com (matriculado na Ginga Fit, assina "Regional 2x") / aluno2@teste.com (sem matrícula)
+ * - aluno@teste.com (matriculado na Ginga Fit, assina "Muay Thai 2x") / aluno2@teste.com (sem matrícula)
  */
 class GingaHubFluxoTest extends TestCase
 {
@@ -130,7 +130,7 @@ class GingaHubFluxoTest extends TestCase
     }
 
     public function test_plano_com_assinatura_nao_pode_ser_excluido_so_desativado() {
-        $plano = $this->ginga()->planos()->where('nome', 'Regional 2x')->first();
+        $plano = $this->ginga()->planos()->where('nome', 'Muay Thai 2x')->first();
         $this->actingAs($this->usuario('academia@teste.com'));
 
         $this->delete("/dashboard-academia/planos/{$plano->id}")->assertSessionHas('error');

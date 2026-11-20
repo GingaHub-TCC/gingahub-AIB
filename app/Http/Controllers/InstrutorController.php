@@ -54,9 +54,10 @@ class InstrutorController extends Controller
         $dados = $request->validate([
             'nome' => 'required|string|max:100',
             'graduacao' => 'nullable|string|max:45',
-            'contato' => ['nullable', 'string', 'regex:/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/'],
+            // Mesmo formato do RF01: (27) 99999-9999, (27) 9999-9999 ou só dígitos com DDD
+            'contato' => ['nullable', 'string', 'regex:/^(?:\(\d{2}\) \d{4,5}-\d{4}|\d{10,11})$/'],
         ], [
-            'contato.regex' => 'O formato do telefone deve ser (99) 99999-9999.',
+            'contato.regex' => 'O telefone deve estar no formato (27) 99999-9999, (27) 9999-9999 ou só números com DDD (27999999999).',
         ]);
 
         // Remove pontos, traços e parênteses antes de salvar

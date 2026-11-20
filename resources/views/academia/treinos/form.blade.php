@@ -13,7 +13,7 @@
         <div class="grid md:grid-cols-2 gap-5">
             <div>
                 <label for="tema" class="rotulo">Tema *</label>
-                <input type="text" id="tema" name="tema" value="{{ old('tema', $treino->tema ?? '') }}" placeholder="Ex: Capoeira Angola, Jiu-Jitsu Kids" required maxlength="100" class="campo">
+                <input type="text" id="tema" name="tema" value="{{ old('tema', $treino->tema ?? '') }}" placeholder="Ex: Jiu-Jitsu Kids, Muay Thai, Judô" required maxlength="100" class="campo">
             </div>
             <div>
                 <label for="descricao" class="rotulo">Descrição</label>

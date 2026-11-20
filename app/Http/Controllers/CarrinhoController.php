@@ -7,6 +7,7 @@ use App\Models\Pedido;
 use App\Models\PessoaJuridica;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Loja de planos de UMA academia, com carrinho guardado na sessão.
@@ -112,7 +113,15 @@ class CarrinhoController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Falha ao finalizar o pedido: ' . $e->getMessage());
+
+            // Detalhe técnico só no log; a tela recebe uma mensagem genérica
+            Log::error('Falha ao finalizar pedido', [
+                'matricula_id' => $matricula->id,
+                'academia_id'  => $academia->id,
+                'erro'         => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', 'Não foi possível finalizar o pedido. Tente novamente em instantes.');
         }
 
         session()->forget('carrinho.' . $academia->id);

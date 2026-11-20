@@ -8,6 +8,24 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 
 class Cnpj implements ValidationRule
 {
+    // Formato aceito: 14 caracteres alfanuméricos (12 letras/números + 2 dígitos verificadores
+    // numéricos), com ou sem pontos, barra e traço (AA.AAA.AAA/AAAA-00). Aceita o CNPJ numérico antigo.
+    private const FORMATO = '/^[0-9A-Za-z]{2}\.?[0-9A-Za-z]{3}\.?[0-9A-Za-z]{3}\/?[0-9A-Za-z]{4}-?\d{2}$/';
+
+    /**
+     * Remove só a máscara (pontos, barras e traços) e deixa as letras em maiúsculas
+     * se o valor estiver em um formato aceito; caso contrário devolve o valor original,
+     * para a regra rejeitá-lo. Use antes de validar, para que a checagem de unicidade
+     * compare com o que está gravado no banco.
+     */
+    public static function normalizar(mixed $valor): mixed
+    {
+        if (is_string($valor) && preg_match(self::FORMATO, trim($valor))) {
+            return strtoupper(preg_replace('/[.\/-]/', '', trim($valor)));
+        }
+        return $valor;
+    }
+
     /**
      * Run the validation rule.
      *
@@ -15,10 +33,16 @@ class Cnpj implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $c = strtoupper(preg_replace('/[^A-Z0-9]/', '', $value));
+        if (!is_string($value) || !preg_match(self::FORMATO, trim($value))) {
+            $fail('O CNPJ deve ter 14 caracteres (letras e números), com ou sem pontos, barra e traço.');
+            return;
+        }
 
-        if (strlen($c) != 14) {
-            $fail('O CNPJ deve ter exatamente 14 caracteres.');
+        $c = strtoupper(preg_replace('/[.\/-]/', '', trim($value)));
+
+        // Bloqueia sequências repetidas (00000000000000, 11111111111111...)
+        if (preg_match('/^([0-9A-Z])\1{13}$/', $c)) {
+            $fail('O CNPJ informado é inválido.');
             return;
         }
 

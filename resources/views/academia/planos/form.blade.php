@@ -13,7 +13,7 @@
         <div class="grid md:grid-cols-2 gap-5">
             <div class="md:col-span-2">
                 <label for="nome" class="rotulo">Nome do plano *</label>
-                <input type="text" id="nome" name="nome" value="{{ old('nome', $plano->nome ?? '') }}" placeholder="Ex: Capoeira Completo" required maxlength="100" class="campo">
+                <input type="text" id="nome" name="nome" value="{{ old('nome', $plano->nome ?? '') }}" placeholder="Ex: Plano Completo" required maxlength="100" class="campo">
             </div>
             <div>
                 <label for="valor" class="rotulo">Valor (R$) *</label>
@@ -29,7 +29,7 @@
             </div>
             <div class="md:col-span-2">
                 <label for="descricao" class="rotulo">Descrição</label>
-                <input type="text" id="descricao" name="descricao" value="{{ old('descricao', $plano->descricao ?? '') }}" placeholder="Ex: Acesso a todas as rodas da semana" maxlength="255" class="campo">
+                <input type="text" id="descricao" name="descricao" value="{{ old('descricao', $plano->descricao ?? '') }}" placeholder="Ex: Acesso a todas as aulas da semana" maxlength="255" class="campo">
             </div>
         </div>
 
@@ -37,7 +37,7 @@
         <fieldset>
             <legend class="rotulo">Treinos que este plano permite praticar</legend>
             @if($treinos->isEmpty())
-                <p class="text-sm bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-3 rounded">
+                <p class="text-sm bg-yellow-50 border border-yellow-500 text-yellow-800 p-3 rounded">
                     Nenhum treino cadastrado ainda. Você pode salvar o plano agora e incluir os treinos depois.
                     <a href="{{ route('academia.treinos.create') }}" class="underline font-medium">Cadastrar treino</a>
                 </p>
@@ -48,7 +48,7 @@
                             <input type="checkbox" name="treinos[]" value="{{ $treino->id }}" @checked(in_array($treino->id, $selecionados)) class="mt-1 accent-[#f0ad15]">
                             <span class="text-sm">
                                 <span class="font-medium block">{{ $treino->tema }}</span>
-                                <span class="text-muted-foreground">{{ $treino->dia_semana_nome }}, {{ $treino->horario }} · {{ $treino->instrutor->nome }} · {{ $treino->local->nome }}</span>
+                                <span class="text-muted-foreground">{{ $treino->dia_semana_nome }}, {{ $treino->horario }}, com {{ $treino->instrutor->nome }}, em {{ $treino->local->nome }}</span>
                             </span>
                         </label>
                     @endforeach
